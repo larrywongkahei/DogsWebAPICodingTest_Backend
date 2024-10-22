@@ -1,6 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+const account_router = require("./account_router");
+const path = require('path');
+const fs = require('fs');
 const app = express();
+
+app.use("/account", account_router);
+
 const port = process.env.PORTS || 3001;
 
 app.use(
@@ -8,10 +14,15 @@ app.use(
         {origin: "*"}
     ));
 
+/*
+- Login, Register with JSON and hashed password with salt
+*/
 app.get("/", (req, res) => {
+    fs.writeFileSync(path.join(__dirname, 'data', 'user.txt'), "hello");
     res.json(
         {data:"test"}
     )
+
 })
 
 app.listen(port, () => {
