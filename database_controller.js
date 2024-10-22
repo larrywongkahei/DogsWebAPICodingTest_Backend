@@ -105,23 +105,24 @@ async function getHashedPassword(password){
 }
 
 // Function to be called within two format json functions, will take in a arg object
+// I found that to call sub breed would need to use /breed/Breed/Sub-breed by checking the request url dog.ceo sent with fetching data
 function formatJSON(data){
     let formattedDogList = [];
     let shadowData = {...data};
     for(key of Object.keys(shadowData)){
         let dataToAdd = {};
         dataToAdd.name = key;
-        dataToAdd.imagePath = "";
         dataToAdd.sub_breed = [];
         // Check if dog has sub-breed
         if(shadowData[key].length > 1){
             let subData = {};
             shadowData[key].forEach((each) => {
                 subData.name = each;
-                subData.imagePath = "";
+                subData.imagePath = `https://dog.ceo/api/breed/${key}/${each}/images/random`;
                 dataToAdd.sub_breed.push(subData);
             })
         };
+        dataToAdd.imagePath = `https://dog.ceo/api/breed/${key}/images/random`
         formattedDogList.push(dataToAdd);
     }
     return formattedDogList;
@@ -157,6 +158,7 @@ function getUserDirPath(userName, filename=""){
     }
     return path.join(__dirname, "data", userName);
 }
+
 module.exports = {
     checkIfUserFolderExist,
     formatUploadedJSON,

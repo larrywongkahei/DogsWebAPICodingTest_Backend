@@ -11,4 +11,4 @@
 Credit to dog ceo.
 [Link to github](https://dog.ceo/dog-api/)
 
-I accidentally found the source of the dog list when searching for way to get dog image by name. haha
+I accidentally found something like the source of the dog list when searching for ways to get dog image by name. haha
