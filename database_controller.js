@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const argon2 = require('argon2');
 
 // To check if user exist or duplicate user name
 function checkIfUserFolderExist(name){
@@ -20,7 +21,7 @@ function readUserAuth(name){
     
 }
 
-function createUser(userAuth){
+async function createUser(userAuth){
     let dataToReturn = {
         success: false,
         description: ""
@@ -34,12 +35,21 @@ function createUser(userAuth){
         return dataToReturn;
     }
 
+    const data = await getHashedPassword(userAuth.password)
+
+    if(!data.success){
+        return data;
+    }
+
     //Convert data to string
     let convertedData = "";
+    console.log('convert data')
 
     try{
-        convertedData = JSON.stringify(userAuth)
+        convertedData = JSON.stringify({...userAuth, password: data.data})
+        console.log(convertedData);
     }catch(error){
+        console.log('convert error')
         dataToReturn.description = error
         return dataToReturn;
     }
@@ -57,12 +67,42 @@ function createUser(userAuth){
     return dataToReturn;
 }
 
-function validatePassword(inputPassword, userPassword){
-    return inputPassword == userPassword;
+async function validatePassword(inputPassword, userPassword){
+    let dataToReturn = {
+        success: false,
+        description: ""
+    }
+    try {
+        const result = await argon2.verify(userPassword, inputPassword);
+        console.log(result)
+        if(!result){
+            dataToReturn.description = "Wrong username or password, input data does not match our data.";
+            return dataToReturn;
+        }
+        dataToReturn.success = true;
+        return dataToReturn;
+    }catch(error){
+        return dataToReturn;
+    }
+    
 }
 
-function getHashedPassword(){
+async function getHashedPassword(password){
 
+    let dataToReturn = {
+        success: false,
+        description:""
+    }
+
+    try {
+        const hash = await argon2.hash(password);
+        dataToReturn.success = true;
+        dataToReturn.data = hash;
+        return dataToReturn;
+    }catch(error){
+        dataToReturn.description = error;
+        return dataToReturn;
+    }
 }
 
 module.exports = {

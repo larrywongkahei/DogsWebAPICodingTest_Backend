@@ -6,9 +6,9 @@ const password_validator = require('./middlewares/login/password_validate');
 
 const router = express.Router();
 
-router.post('/register', register_Username_validator, (req, res) => {
+router.post('/register', register_Username_validator, async (req, res) => {
     const userAuth = req.body;
-    const data = createUser(userAuth);
+    const data = await createUser(userAuth);
     console.log(data)
     if(data.success){
         res.status(200).send(data);
