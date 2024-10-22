@@ -11,7 +11,7 @@ const dogs_router = require("./routers/dogs_router");
 
 const path = require('path');
 const fs = require('fs');
-const { formatJSON } = require('./database_controller');
+const { formatJSON, formatDefaultJSON } = require('./database_controller');
 const app = express();
 
 app.use(
@@ -35,7 +35,7 @@ const port = process.env.PORTS || 3001;
 - Login, Register with JSON and hashed password with salt
 */
 app.get("/", (req, res) => {
-    formatJSON();
+    formatDefaultJSON();
     res.send("hi");
     // fs.writeFileSync(path.join(__dirname, 'data', 'user.txt'), "hello");
     // res.json(

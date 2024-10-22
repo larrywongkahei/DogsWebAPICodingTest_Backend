@@ -106,9 +106,8 @@ async function getHashedPassword(password){
 }
 
 // Function to be called within two format json functions, will take in a arg object
-async function formatJSON(){
+function formatJSON(data){
     let formattedDogList = [];
-    const data = JSON.parse(fs.readFileSync(path.join(__dirname, "test.json")));
     let shadowData = {...data};
     for(key of Object.keys(shadowData)){
         let dataToAdd = {};
@@ -126,20 +125,25 @@ async function formatJSON(){
         };
         formattedDogList.push(dataToAdd);
     }
+    return formattedDogList;
 
 }
 
 async function formatUploadedJSON(jsonString){
-
-
+    const data = JSON.parse(jsonString);
+    console.log(formatJSON(data));
 }
 
-async function formatDefaultJSON(){
+function formatDefaultJSON(){
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname, "dogs.json")));
+    console.log(formatJSON(data));
 
 }
 
 module.exports = {
     checkIfUserFolderExist,
+    formatUploadedJSON,
+    formatDefaultJSON,
     validatePassword,
     readUserAuth,
     formatJSON,
