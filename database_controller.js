@@ -131,12 +131,12 @@ function formatJSON(data){
 
 async function formatUploadedJSON(jsonString){
     const data = JSON.parse(jsonString);
-    console.log(formatJSON(data));
+    return data;
 }
 
 function formatDefaultJSON(){
     const data = JSON.parse(fs.readFileSync(path.join(__dirname, "dogs.json")));
-    console.log(formatJSON(data));
+    return data;
 
 }
 
