@@ -105,9 +105,43 @@ async function getHashedPassword(password){
     }
 }
 
+// Function to be called within two format json functions, will take in a arg object
+async function formatJSON(){
+    let formattedDogList = [];
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname, "test.json")));
+    let shadowData = {...data};
+    for(key of Object.keys(shadowData)){
+        let dataToAdd = {};
+        dataToAdd.name = key;
+        dataToAdd.imagePath = "";
+        dataToAdd.sub_breed = [];
+        // Check if dog has sub-breed
+        if(shadowData[key].length > 1){
+            let subData = {};
+            shadowData[key].forEach((each) => {
+                subData.name = each;
+                subData.imagePath = "";
+                dataToAdd.sub_breed.push(subData);
+            })
+        };
+        formattedDogList.push(dataToAdd);
+    }
+
+}
+
+async function formatUploadedJSON(jsonString){
+
+
+}
+
+async function formatDefaultJSON(){
+
+}
+
 module.exports = {
     checkIfUserFolderExist,
     validatePassword,
     readUserAuth,
+    formatJSON,
     createUser,
 }
