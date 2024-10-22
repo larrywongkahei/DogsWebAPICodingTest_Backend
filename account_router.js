@@ -9,7 +9,6 @@ const router = express.Router();
 router.post('/register', register_Username_validator, async (req, res) => {
     const userAuth = req.body;
     const data = await createUser(userAuth);
-    console.log(data)
     if(data.success){
         res.status(200).send(data);
     }else{
