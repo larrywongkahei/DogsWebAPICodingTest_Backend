@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const argon2 = require('argon2');
+const uuid = require('uuid');
 
 // To check if user exist or duplicate user name
 function checkIfUserFolderExist(name){
@@ -43,13 +44,13 @@ async function createUser(userAuth){
 
     //Convert data to string
     let convertedData = "";
-    console.log('convert data')
+
+    const userId = uuid.v4();
 
     try{
-        convertedData = JSON.stringify({...userAuth, password: data.data})
+        convertedData = JSON.stringify({...userAuth, password: data.data, userId: userId});
         console.log(convertedData);
     }catch(error){
-        console.log('convert error')
         dataToReturn.description = error
         return dataToReturn;
     }

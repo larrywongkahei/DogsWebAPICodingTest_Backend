@@ -1,17 +1,31 @@
 const express = require('express');
 const cors = require('cors');
-const account_router = require("./account_router");
+const cookiesParser = require('cookie-parser');
+
+require('dotenv').config();
+
+
+// Import routers
+const account_router = require("./routers/account_router");
+const dogs_router = require("./routers/dogs_router");
+
 const path = require('path');
 const fs = require('fs');
 const app = express();
-app.use(express.json());
 
 app.use(
     cors(
-        {origin: "*"}
+        {
+            origin: "http://localhost:5173",
+            credentials: true,
+        }
 ));
+app.use(express.json());
+app.use(cookiesParser());
 
+// Initialize routers
 app.use("/account", account_router);
+app.use("/api", dogs_router);
 
 const port = process.env.PORTS || 3001;
 

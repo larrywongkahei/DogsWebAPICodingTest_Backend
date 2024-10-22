@@ -18,6 +18,6 @@ module.exports = async function Password_validate(req, res, next){
         res.status(401).send(verifyResult);
         return;
     }
-    
+    req.userId = userAuth.userId;
     next();
 }
