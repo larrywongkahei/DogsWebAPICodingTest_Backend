@@ -10,7 +10,9 @@ module.exports = function jwt_Validator(req, res, next){
 
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        console.log(decoded);
         req.userId = decoded.userId;
+        req.userName = decoded.userName;
         next();
     }catch(error){
         return res.status(401).json({

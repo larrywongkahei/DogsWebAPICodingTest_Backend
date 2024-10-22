@@ -140,11 +140,22 @@ function formatDefaultJSON(){
 
 }
 
+function saveJSONFile(convertedData, userName){
+    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(convertedData, null, 2), function(err){
+        if(err){
+            dataToReturn.description = err
+            return dataToReturn;
+        }
+    });
+
+}
+
 module.exports = {
     checkIfUserFolderExist,
     formatUploadedJSON,
     formatDefaultJSON,
     validatePassword,
+    saveJSONFile,
     readUserAuth,
     formatJSON,
     createUser,

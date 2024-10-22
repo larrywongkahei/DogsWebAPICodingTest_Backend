@@ -17,6 +17,6 @@ module.exports = async function Password_validate(req, res, next){
         return res.status(401).send(verifyResult);
     }
     req.userId = userAuth.userId;
-    req.userName = userAuth.userName;
+    req.userName = userAuth.username;
     next();
 }
