@@ -6,10 +6,8 @@ module.exports = async function Password_validate(req, res, next){
     let verifyResult = await validatePassword(req.body.password, userAuth.password);
 
     if(!verifyResult.success){
-        console.log('password not right')
 
         if(verifyResult.description.length > 1){
-            console.log('something wrong with argon2');
             return res.status(401).send(verifyResult);
         }
 

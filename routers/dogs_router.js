@@ -1,7 +1,7 @@
-
 const express = require('express');
 const jwt_validator = require('../middlewares/jwt/jwt_validate');
-const { formatJSON, saveJSONFile } = require('../database_controller');
+const { formatJSON, saveJSONFile, getUserDirPath } = require('../database_controller');
+const path = require('path');
 
 const router = express.Router();
 
@@ -11,7 +11,6 @@ router.get('/', jwt_validator, async (req, res) => {
 
 router.post('/fileUpload', jwt_validator, async (req, res) => {
     try{
-        console.log(req.userName)
         if(!req.files){
             return res.status(400).json({
                 success: false,
@@ -44,11 +43,10 @@ router.post('/fileUpload', jwt_validator, async (req, res) => {
                 return res.status(400).json({success: false, description: "File type error."})
             }
 
-            const imagePath = path.join(__dirname, "data", req.userName);
+            const imagePath = getUserDirPath(req.userName, image.name)
             await image.mv(imagePath);
         }
     }catch(error){
-        console.log(error);
         return res.status(500).json({success: false, description: "File upload process failed, please try again later."})
     }
     return res.status(200).send({description: "success"})

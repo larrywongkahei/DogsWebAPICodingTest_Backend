@@ -74,7 +74,6 @@ async function validatePassword(inputPassword, userPassword){
     }
     try {
         const result = await argon2.verify(userPassword, inputPassword);
-        console.log(result)
         if(!result){
             dataToReturn.description = "Wrong username or password, input data does not match our data.";
             return dataToReturn;
@@ -150,11 +149,20 @@ function saveJSONFile(convertedData, userName){
 
 }
 
+function getUserDirPath(userName, filename=""){
+    if(filename.length > 1){
+        const extension = filename.split('.')[1];
+        return path.join(__dirname, "data", userName, `icon.${extension}`);
+
+    }
+    return path.join(__dirname, "data", userName);
+}
 module.exports = {
     checkIfUserFolderExist,
     formatUploadedJSON,
     formatDefaultJSON,
     validatePassword,
+    getUserDirPath,
     saveJSONFile,
     readUserAuth,
     formatJSON,
