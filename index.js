@@ -4,15 +4,17 @@ const account_router = require("./account_router");
 const path = require('path');
 const fs = require('fs');
 const app = express();
+app.use(express.json());
+
+app.use(
+    cors(
+        {origin: "*"}
+));
 
 app.use("/account", account_router);
 
 const port = process.env.PORTS || 3001;
 
-app.use(
-    cors(
-        {origin: "*"}
-    ));
 
 /*
 - Login, Register with JSON and hashed password with salt
