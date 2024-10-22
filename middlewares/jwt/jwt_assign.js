@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 module.exports = function jwt_assign(req, res, next){
 
     try{
-        const token = jwt.sign({userId: req.userId}, process.env.JWT_SECRET_KEY, {
+        const token = jwt.sign({userId: req.userId, userName: req.userName}, process.env.JWT_SECRET_KEY, {
             expiresIn: '15m'
         })
 

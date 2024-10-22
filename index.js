@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookiesParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
 
 require('dotenv').config();
 
@@ -10,7 +11,6 @@ const account_router = require("./routers/account_router");
 const dogs_router = require("./routers/dogs_router");
 
 const path = require('path');
-const fs = require('fs');
 const { formatJSON, formatDefaultJSON } = require('./database_controller');
 const app = express();
 
@@ -21,6 +21,7 @@ app.use(
             credentials: true,
         }
 ));
+app.use(fileUpload());
 app.use(express.json());
 app.use(cookiesParser());
 

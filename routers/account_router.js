@@ -11,14 +11,14 @@ router.post('/register', register_Username_validator, async (req, res) => {
     const userAuth = req.body;
     const data = await createUser(userAuth);
     if(data.success){
-        res.status(200).send(data);
+        return res.status(200).send(data);
     }else{
-        res.status(400).send(data);
+        return res.status(400).send(data);
     }
 })
 
 router.post('/login', login_Username_validator, password_validator, jwt_assign, (req, res) => {
-    res.status(200).json({success:true, description: "Successfully logged in"})
+    return res.status(200).json({success:true, description: "Successfully logged in"})
 })
 
 module.exports = router;
