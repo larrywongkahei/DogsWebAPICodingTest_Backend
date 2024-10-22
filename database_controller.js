@@ -49,7 +49,6 @@ async function createUser(userAuth){
 
     try{
         convertedData = JSON.stringify({...userAuth, password: data.data, userId: userId});
-        console.log(convertedData);
     }catch(error){
         dataToReturn.description = error
         return dataToReturn;

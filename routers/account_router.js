@@ -18,18 +18,7 @@ router.post('/register', register_Username_validator, async (req, res) => {
 })
 
 router.post('/login', login_Username_validator, password_validator, jwt_assign, (req, res) => {
-    console.log('hi')
-    console.log(req.token);
-    // res.setHeader("Authorization", `Bearer ${req.token}`);
-    // res.setHeader('Access-Control-Expose-Headers', 'Authorization');
-
-    // res.cookie('jwt_token', req.token, {
-    //     httpOnly: true,
-    //     maxAge: 3600000,
-    //     sameSite: 'Strict'
-    // })
-
-    res.status(200).json({description: "success"})
+    res.status(200).json({success:true, description: "Successfully logged in"})
 })
 
 module.exports = router;

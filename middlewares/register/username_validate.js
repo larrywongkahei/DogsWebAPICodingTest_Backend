@@ -12,6 +12,7 @@ module.exports = function UsernameValidate(req, res, next){
         res.status(401).send(dataToReturn);
         return;
     }
+    console.log('passed')
     
     next();
 }
