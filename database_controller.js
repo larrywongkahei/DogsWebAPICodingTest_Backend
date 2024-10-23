@@ -68,8 +68,8 @@ async function createUser(userAuth){
     });
 
     // Write default dogs data in dogs.json
-    // const dogs = JSON.parse(fs.readFileSync(path.join(__dirname, "formattedDogs.json")));
-    const dogs = await formatDefaultJSON(); 
+    const dogs = JSON.parse(fs.readFileSync(path.join(__dirname, "default_dogs.json")));
+    // const dogs = await formatDefaultJSON(); 
     saveJSONFile(dogs, userAuth.username);
     
     dataToReturn.success = true;
