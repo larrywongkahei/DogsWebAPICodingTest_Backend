@@ -62,21 +62,21 @@
   {
     "name": "briard",
     "sub_breed": [],
-    "imagePath": "https://images.dog.ceo/breeds/briard/n02105251_1588.jpg"
+    "imagePath": "https://images.dog.ceo/breeds/briard/n02105251_9020.jpg"
   },
   {
     "name": "bulldog",
     "sub_breed": [
       {
         "name": "boston",
-        "imagePath": "https://images.dog.ceo/breeds/bulldog-boston/n02096585_664.jpg"
+        "imagePath": "https://images.dog.ceo/breeds/bulldog-boston/n02096585_904.jpg"
       },
       {
         "name": "french",
-        "imagePath": "https://images.dog.ceo/breeds/bulldog-french/n02108915_3202.jpg"
+        "imagePath": "https://images.dog.ceo/breeds/bulldog-french/n02108915_3575.jpg"
       }
     ],
-    "imagePath": "https://images.dog.ceo/breeds/bulldog-french/n02108915_4303.jpg"
+    "imagePath": "https://images.dog.ceo/breeds/bulldog-french/n02108915_2681.jpg"
   },
   {
     "name": "bullterrier",
@@ -86,7 +86,7 @@
         "imagePath": "https://images.dog.ceo/breeds/bullterrier-staffordshire/n02093256_7830.jpg"
       }
     ],
-    "imagePath": "https://images.dog.ceo/breeds/bullterrier-staffordshire/n02093256_774.jpg"
+    "imagePath": "https://images.dog.ceo/breeds/bullterrier-staffordshire/n02093256_4090.jpg"
   },
   {
     "name": "chihuahua",
