@@ -187,6 +187,10 @@ async function formatJSON (data)  {
 
 //TO TEST
 async function updateFetchedData(dogName, userName, imagePath){
+    let dataToReturn = {
+        success: false,
+        subscription: ""
+    }
     const formattedDogName = dogName.split("-");
     if(formattedDogName.length > 1){
         const fName = formattedDogName[0];
@@ -206,10 +210,13 @@ async function updateFetchedData(dogName, userName, imagePath){
 
             saveJSONFile(userDogs, userName);
             //Add status
-            return;
+            dataToReturn.success = true;
+            dataToReturn.subscription = "Successfully updated";
+            return dataToReturn
 
         }catch(error){
-            console.log('error show in subbreed')
+            dataToReturn.subscription = "Update failed, Please try agin later"
+            return dataToReturn
         }
     }
 
@@ -223,10 +230,13 @@ async function updateFetchedData(dogName, userName, imagePath){
         userDogs[indexOfDog] = shadow;
 
         saveJSONFile(userDogs, userName);
-        //Add status
-        return;
-    }catch(error){
-        console.log('error main breed')
+            dataToReturn.success = true;
+            dataToReturn.subscription = "Successfully updated";
+            return dataToReturn
+
+        }catch(error){
+            dataToReturn.subscription = "Update failed, Please try agin later"
+            return dataToReturn
     }
 }
 

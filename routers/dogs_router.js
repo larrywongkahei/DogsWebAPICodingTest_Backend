@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.get('/', jwt_validator, async (req, res) => {
     const data = getDogsByUserName(req.userName);
-    console.log(JSON.stringify(data, null, 2));
     res.status(200).json({success:true, description: "got data", data:data});
 })
 
