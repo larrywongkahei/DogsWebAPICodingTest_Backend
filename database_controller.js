@@ -186,19 +186,13 @@ async function formatJSON (data)  {
 
 
 //TO TEST
-async function updateFetchedData(dogName, userName){
-    const formattedDogName = dogName.split(" ");
+async function updateFetchedData(dogName, userName, imagePath){
+    const formattedDogName = dogName.split("-");
     if(formattedDogName.length > 1){
         const fName = formattedDogName[0];
         const bName = formattedDogName[1];
 
         try{
-            console.log(`https://dog.ceo/api/breed/${fName}/${bName}/images/random`)
-            const {data} = await axios.get(`https://dog.ceo/api/breed/${fName}/${bName}/images/random`)
-            const {message, status} = data;
-
-            console.log(message);
-
             const userDogs = getDogsByUserName(userName);
             const indexOfDog = userDogs.findIndex((dog) => dog.name === fName);
 
@@ -207,7 +201,7 @@ async function updateFetchedData(dogName, userName){
             const sub_breedIndex = mainBreed.sub_breed.findIndex((dog) => dog.name === bName);
             const dogToUpdate = mainBreed.sub_breed[sub_breedIndex];
 
-            const shadow = {...dogToUpdate, imagePath: message}
+            const shadow = {...dogToUpdate, imagePath: imagePath}
             mainBreed.sub_breed[sub_breedIndex] = shadow;
 
             saveJSONFile(userDogs, userName);
@@ -220,18 +214,12 @@ async function updateFetchedData(dogName, userName){
     }
 
     try{
-        console.log(`https://dog.ceo/api/breed/${dogName}/images/random`)
-        const {data} = await axios.get(`https://dog.ceo/api/breed/${dogName}/images/random`)
-        const {message, status} = data;
-
-        console.log(message);
-
         const userDogs = getDogsByUserName(userName);
         const indexOfDog = userDogs.findIndex((dog) => dog.name === dogName);
 
         const dogToUpdate = userDogs[indexOfDog];
 
-        const shadow = {...dogToUpdate, imagePath: message}
+        const shadow = {...dogToUpdate, imagePath: imagePath}
         userDogs[indexOfDog] = shadow;
 
         saveJSONFile(userDogs, userName);

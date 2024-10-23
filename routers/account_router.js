@@ -4,8 +4,13 @@ const register_Username_validator = require("../middlewares/register/username_va
 const login_Username_validator = require("../middlewares/login/username_validate");
 const password_validator = require('../middlewares/login/password_validate');
 const jwt_assign = require('../middlewares/jwt/jwt_assign');
+const jwt_validate = require('../middlewares/jwt/jwt_validate');
 
 const router = express.Router();
+
+router.get('/authCheck', jwt_validate, async (req, res) => {
+    return res.status(200).json({success:true, description:'Logged in'});
+})
 
 router.post('/register', register_Username_validator, async (req, res) => {
     const userAuth = req.body;

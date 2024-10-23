@@ -4,6 +4,7 @@ module.exports = function jwt_Validator(req, res, next){
     const token = req.cookies.jwt_token;
     if(!token){
         return res.status(401).json({
+            success: false,
             description: "Please log in first"
         });
     }
@@ -15,6 +16,7 @@ module.exports = function jwt_Validator(req, res, next){
         next();
     }catch(error){
         return res.status(401).json({
+            success: false,
             description: "Invalid token"
         });
     }

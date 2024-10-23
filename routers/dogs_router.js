@@ -7,14 +7,15 @@ const router = express.Router();
 
 router.get('/', jwt_validator, async (req, res) => {
     const data = getDogsByUserName(req.userName);
+    console.log(JSON.stringify(data, null, 2));
     res.status(200).json({success:true, description: "got data", data:data});
 })
 
 router.patch('/image/:name', jwt_validator, async (req, res) => {
-    console.log("get")
-    const name = req.params.name;
-    const data = await updateFetchedData(name, req.userName);
-    res.json({data:"hi"})
+    const dogName = req.params.name;
+    const { imagePath } = req.body;
+    const data = await updateFetchedData(dogName, req.userName, imagePath);
+    res.json({success:true, description:"Updated"})
 })
 
 //Allow user to upload image or json file, if user know what they are doing. Image are for icon.
