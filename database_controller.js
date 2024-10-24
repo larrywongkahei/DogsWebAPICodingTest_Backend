@@ -69,6 +69,7 @@ async function createUser(userAuth){
 
     // Write default dogs data in dogs.json
     const dogs = JSON.parse(fs.readFileSync(path.join(__dirname, "default_dogs.json")));
+    // Use this line when made changes to json data structure. To reload default_dogs.json file.
     // const dogs = await formatDefaultJSON(); 
     saveJSONFile(dogs, userAuth.username);
     
