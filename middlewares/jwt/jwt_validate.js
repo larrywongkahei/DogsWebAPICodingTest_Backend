@@ -5,7 +5,7 @@ module.exports = function jwt_Validator(req, res, next){
     if(!token){
         return res.status(401).json({
             success: false,
-            description: "Please log in first"
+            description: "Token expired, Please log in again"
         });
     }
 
