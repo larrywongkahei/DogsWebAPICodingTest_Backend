@@ -140,45 +140,39 @@ async function getHashedPassword(password){
 
 // Function to get all image by name ( wait two one after every request to prevent exceed limit or added load to website)
 
-async function formatJSON (data)  {
+async function formatJSON (data){
     let formattedDogList = [];
     let shadowData = {...data};
     for(key of Object.keys(shadowData)){
-        console.log('========' + key + '========')
         let dataToAdd = {};
         dataToAdd.name = key;
+        dataToAdd.description = "";
         dataToAdd.sub_breed = [];
         // Check if dog has sub-breed
         if(shadowData[key].length > 0){
             for(const each of shadowData[key]){
                 let subData = {};
-                console.log(each);
                 subData.name = each;
+                subData.description = "";
                 try{
                     const {data} = await axios.get(`https://dog.ceo/api/breed/${key}/${each}/images/random`);
                     const {message} = data;
                     subData.imagePath = message;
                     dataToAdd.sub_breed.push(subData);
-                    console.log(message);
                     await new Promise(resolve => setTimeout(resolve,500));
                 }catch(error){
-                    console.log("Error ---------")
                 }
             }
         };
-        console.log("Still running");
         try{
             const {data} = await axios.get(`https://dog.ceo/api/breed/${key}/images/random`);
             const {message} = data;
-            console.log(message);
             dataToAdd.imagePath = message
             formattedDogList.push(dataToAdd);
             await new Promise(resolve => setTimeout(resolve,500));
         }catch(error){
-            console.log('Error =======')
         }
     }
-    console.log('finished')
     return formattedDogList;
 };
 
