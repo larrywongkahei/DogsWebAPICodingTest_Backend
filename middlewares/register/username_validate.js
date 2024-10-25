@@ -11,6 +11,6 @@ module.exports = function UsernameValidate(req, res, next){
         dataToReturn.description = "Username in use. If you already registered, please try logging in.";
         return res.status(401).send(dataToReturn);
     }
-    
+
     next();
 }

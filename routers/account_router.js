@@ -12,7 +12,7 @@ router.get('/authCheck', jwt_validate, async (req, res) => {
     return res.status(200).json({success:true, description:'Logged in'});
 })
 
-router.post('/register', register_Username_validator, async (req, res) => {
+router.post('/register', register_Username_validator, jwt_assign, async (req, res) => {
     const userAuth = req.body;
     const data = await createUser(userAuth);
     if(data.success){
