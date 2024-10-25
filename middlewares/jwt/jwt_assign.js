@@ -4,13 +4,13 @@ module.exports = function jwt_assign(req, res, next){
 
     try{
         const token = jwt.sign({userId: req.userId, userName: req.userName}, process.env.JWT_SECRET_KEY, {
-            expiresIn: '15m'
+            expiresIn: process.env.TOKEN_EXPIRE_TIME_SHORT
         })
 
         res.cookie('jwt_token', token, {
             httpOnly: true,
             // 15 minutes
-            maxAge: 900000,
+            maxAge: parseInt(process.env.TOKEN_EXPIRE_TIME_INT),
             sameSite: 'Strict'
         });
 
