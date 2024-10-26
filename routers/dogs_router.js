@@ -7,8 +7,8 @@ const jwt_validate = require('../middlewares/jwt/jwt_validate');
 
 const router = express.Router();
 
-router.get('/', jwt_validator, (req, res) => {
-    const data = getDogsByUserName(req.userName);
+router.get('/', jwt_validator, async (req, res) => {
+    const data = await getDogsByUserName(req.userName);
     res.status(200).json({ success: true, description: "got data", data: data });
 })
 
@@ -34,7 +34,7 @@ router.get('/random/:main/:sub?', jwt_validator, async (req, res) => {
 router.patch("/update", jwt_validate, async(req, res) => {
     const { name, main_breed="", sub_breed=null, imagePath, description } = req.body;
 
-    const { success, description:result_description } = updateDog(req.userName, name, main_breed, sub_breed, imagePath, description);
+    const { success, description:result_description } = await updateDog(req.userName, name, main_breed, sub_breed, imagePath, description);
 
     let status = success ? 200 : 400;
 
@@ -45,7 +45,7 @@ router.patch("/update", jwt_validate, async(req, res) => {
 router.post("/create", jwt_validate, async(req, res) => {
     const { mainBreed, subBreed="", imagePath, description } = req.body;
 
-    const { success, description:result_description } = createDog(req.userName, mainBreed, subBreed, imagePath, description);
+    const { success, description:result_description } = await createDog(req.userName, mainBreed, subBreed, imagePath, description);
 
     let status = success ? 200 : 400;
 
@@ -53,7 +53,7 @@ router.post("/create", jwt_validate, async(req, res) => {
 })
 
 router.get("/main_breed/:main", jwt_validate, async(req, res) => {
-    const { success, description, data, status } = getMainBreedData(req.userName, req.params.main);
+    const { success, description, data, status } = await getMainBreedData(req.userName, req.params.main);
 
     let dataToReturn = {
         success,
@@ -123,7 +123,7 @@ router.post('/fileUpload', jwt_validator, async (req, res) => {
 
             let formattedData = JSON.parse(jsonData);
 
-            let newData = formatJSON(formattedData);
+            let newData = await formatJSON(formattedData);
 
             saveJSONFile(newData, req.userName);
 
@@ -148,11 +148,11 @@ router.post('/fileUpload', jwt_validator, async (req, res) => {
 router.delete('/delete/:main/:sub?', jwt_validate, async (req, res) => {
 
     if(req.params.sub){
-        const result = removeDog(req.userName, req.params.main, req.params.sub);
+        const result = await removeDog(req.userName, req.params.main, req.params.sub);
         return res.status(200).json(result);
     }
 
-    const result = removeDog(req.userName, req.params.main);
+    const result = await removeDog(req.userName, req.params.main);
     return res.status(200).json(result);
 
 })

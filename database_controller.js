@@ -9,8 +9,10 @@ function checkIfUserFolderExist(name) {
     return fs.existsSync(path.join(__dirname, "data", name));
 }
 
-function getDogsByUserName(name) {
-    return JSON.parse(fs.readFileSync(path.join(__dirname, "data", name, "dogs.json"))).sort((a, b) => a.name.localeCompare(b.name));
+async function getDogsByUserName(name) {
+    const data = await fs.promises.readFile(path.join(__dirname, "data", name, "dogs.json"));
+    return JSON.parse(data).sort((a,b) => a.name.localeCompare(b.name));
+    // return JSON.parse(await fs.readFile(path.join(__dirname, "data", name, "dogs.json"))).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function readUserAuth(name) {
@@ -41,8 +43,8 @@ function removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex) {
 
 }
 
-function checkIfExist(userName, main, sub = "") {
-    const dogs = getDogsByUserName(userName);
+async function checkIfExist(userName, main, sub = "") {
+    const dogs = await getDogsByUserName(userName);
 
     if (sub.length === 0) {
         return dogs.findIndex((dog) => dog.name === main) !== -1;
@@ -53,8 +55,8 @@ function checkIfExist(userName, main, sub = "") {
     return dogs[mainIndex]['sub_breed'].findIndex((dog) => dog.name === sub) !== -1;
 }
 
-function updateDog(userName, name, main_breed, sub_breed, imagePath, description) {
-    const dogs = getDogsByUserName(userName);
+async function updateDog(userName, name, main_breed, sub_breed, imagePath, description) {
+    const dogs = await getDogsByUserName(userName);
 
     let dataToReturn = {
         success: false,
@@ -95,12 +97,12 @@ function updateDog(userName, name, main_breed, sub_breed, imagePath, description
 
 }
 
-function createDog(userName, mainBreed, subBreed, imagePath, description) {
+async function createDog(userName, mainBreed, subBreed, imagePath, description) {
     let dataToReturn = {
         success: false,
         description: "",
     }
-    const dogs = getDogsByUserName(userName);
+    const dogs = await getDogsByUserName(userName);
 
     let shadowDogs = [...dogs];
 
@@ -130,7 +132,7 @@ function createDog(userName, mainBreed, subBreed, imagePath, description) {
 
 }
 
-function removeDog(userName, main, sub = "") {
+async function removeDog(userName, main, sub = "") {
 
     let dataToReturn = {
         success: false,
@@ -138,7 +140,7 @@ function removeDog(userName, main, sub = "") {
         data: []
     }
 
-    const dogs = getDogsByUserName(userName);
+    const dogs = await getDogsByUserName(userName);
     const mainIndex = dogs.findIndex((dog) => dog.name === main);
 
     if (mainIndex === -1) {
@@ -326,7 +328,7 @@ async function formatJSON(data) {
     return formattedDogList;
 };
 
-function getMainBreedData(userName, main_breed_name){
+async function getMainBreedData(userName, main_breed_name){
     let dataToReturn = {
         success: false,
         description: "",
@@ -334,7 +336,7 @@ function getMainBreedData(userName, main_breed_name){
         status:400,
     }
 
-    const dogs = getDogsByUserName(userName);
+    const dogs = await getDogsByUserName(userName);
     const index = dogs.findIndex((dog) => dog.name === main_breed_name);
     if(index === -1){
         description = "Dog not exist";
@@ -350,7 +352,7 @@ function getMainBreedData(userName, main_breed_name){
 }
 
 
-function updateFetchedData(userName, main, sub, imagePath) {
+async function updateFetchedData(userName, main, sub, imagePath) {
     let dataToReturn = {
         success: false,
         discription: "",
@@ -358,7 +360,7 @@ function updateFetchedData(userName, main, sub, imagePath) {
     }
 
     try {
-        const dogs = getDogsByUserName(userName);
+        const dogs = await getDogsByUserName(userName);
 
         const shadowDogs = [...dogs];
 

@@ -17,7 +17,7 @@ const app = express();
 app.use(
     cors(
         {
-            origin: "http://localhost:5173",
+            origin: "http://localhost",
             credentials: true,
         }
 ));
@@ -28,6 +28,7 @@ app.use(cookiesParser());
 // Initialize routers
 app.use("/account", account_router);
 app.use("/api", dogs_router);
+app.options("*", cors());
 
 const port = process.env.PORTS || 3001;
 
