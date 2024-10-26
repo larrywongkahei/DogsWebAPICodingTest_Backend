@@ -5,45 +5,121 @@ const uuid = require('uuid');
 const axios = require('axios');
 
 // To check if user exist or duplicate user name
-function checkIfUserFolderExist(name){
+function checkIfUserFolderExist(name) {
     return fs.existsSync(path.join(__dirname, "data", name));
 }
 
-function getDogsByUserName(name){
+function getDogsByUserName(name) {
     return JSON.parse(fs.readFileSync(path.join(__dirname, "data", name, "dogs.json")));
 }
 
-function readUserAuth(name){
+function readUserAuth(name) {
     let dataToReturn = {
         success: false,
         description: ""
     }
 
-    try{
-       return JSON.parse(fs.readFileSync(path.join(__dirname, "data", name, "userAuth.json")));
-    }catch(error){
+    try {
+        return JSON.parse(fs.readFileSync(path.join(__dirname, "data", name, "userAuth.json")));
+    } catch (error) {
         dataToReturn.description = "Can't not access user data, please try again later.";
     }
-    
 }
 
-async function createUser(userAuth){
+function removeMainBreedDogFromFile(userName, dogs, index) {
+    const shadowList = [...dogs];
+    shadowList.splice(index, 1);
+    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
+        if (err) {
+            dataToReturn.description = err
+            return dataToReturn;
+        }
+    });
+    return shadowList;
+}
+
+function removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex) {
+    const shadowList = [...dogs];
+    console.log(shadowList)
+    shadowList[mainIndex]['sub_breed'].splice(subIndex, 1);
+    console.log('writing')
+    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
+        if (err) {
+            dataToReturn.description = err
+            return dataToReturn;
+        }
+    });
+    console.log("wrote")
+    return shadowList;
+
+}
+
+function removeDog(userName, main, sub = "") {
+
+    let dataToReturn = {
+        success: false,
+        description: "",
+        data: []
+    }
+
+    const dogs = getDogsByUserName(userName);
+    const mainIndex = dogs.findIndex((dog) => dog.name === main);
+    console.log(mainIndex)
+
+    if (mainIndex === -1) {
+        dataToReturn.description = "Dog not exist. Please report this problem."
+        return dataToReturn;
+    }
+
+    if (sub.length === 0) {
+        try {
+            dataToReturn.data = removeMainBreedDogFromFile(userName, dogs, mainIndex);
+            dataToReturn.success = true;
+            dataToReturn.description = "Successfully deleted";
+            return dataToReturn;
+        } catch (error) {
+            dataToReturn.description = "Dog can not be removed. Please report this problem."
+            return dataToReturn;
+        }
+    }
+
+    const subIndex = dogs[mainIndex]["sub_breed"].findIndex((dog) => dog.name === sub);
+    console.log(subIndex)
+
+    if (subIndex === -1) {
+        dataToReturn.description = "Dog not exist. Please report this problem."
+        return dataToReturn;
+    }
+
+    try {
+        dataToReturn.data = removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex);
+        dataToReturn.success = true;
+        dataToReturn.description = "Successfully deleted";
+        console.log('success')
+        return dataToReturn;
+    } catch (error) {
+        dataToReturn.description = "Dog can not be removed. Please report this problem."
+        return dataToReturn;
+    }
+}
+
+async function createUser(userAuth) {
     let dataToReturn = {
         success: false,
         description: ""
     }
 
     // Create user folder
-    try{
+    try {
         fs.mkdirSync(path.join(__dirname, "data", userAuth.username));
-    }catch(error){
+    } catch (error) {
         dataToReturn.description = "Username in used, please login if already registered."
         return dataToReturn;
     }
 
     const data = await getHashedPassword(userAuth.password)
 
-    if(!data.success){
+    if (!data.success) {
         return data;
     }
 
@@ -52,16 +128,16 @@ async function createUser(userAuth){
 
     const userId = uuid.v4();
 
-    try{
-        convertedData = JSON.stringify({...userAuth, password: data.data, userId: userId});
-    }catch(error){
+    try {
+        convertedData = JSON.stringify({ ...userAuth, password: data.data, userId: userId });
+    } catch (error) {
         dataToReturn.description = error
         return dataToReturn;
     }
 
     // Write user auth data in json file
-    fs.writeFileSync(path.join(__dirname, "data", userAuth.username, "userAuth.json"), convertedData, function(err){
-        if(err){
+    fs.writeFileSync(path.join(__dirname, "data", userAuth.username, "userAuth.json"), convertedData, function (err) {
+        if (err) {
             dataToReturn.description = err
             return dataToReturn;
         }
@@ -72,36 +148,36 @@ async function createUser(userAuth){
     // Use this line when made changes to json data structure. To reload default_dogs.json file.
     // const dogs = await formatDefaultJSON(); 
     saveJSONFile(dogs, userAuth.username);
-    
+
     dataToReturn.success = true;
     dataToReturn.description = "Successfully registered"
     return dataToReturn;
 }
 
-async function validatePassword(inputPassword, userPassword){
+async function validatePassword(inputPassword, userPassword) {
     let dataToReturn = {
         success: false,
         description: ""
     }
     try {
         const result = await argon2.verify(userPassword, inputPassword);
-        if(!result){
+        if (!result) {
             dataToReturn.description = "Wrong username or password, input data does not match our data.";
             return dataToReturn;
         }
         dataToReturn.success = true;
         return dataToReturn;
-    }catch(error){
+    } catch (error) {
         return dataToReturn;
     }
-    
+
 }
 
-async function getHashedPassword(password){
+async function getHashedPassword(password) {
 
     let dataToReturn = {
         success: false,
-        description:""
+        description: ""
     }
 
     try {
@@ -109,7 +185,7 @@ async function getHashedPassword(password){
         dataToReturn.success = true;
         dataToReturn.data = hash;
         return dataToReturn;
-    }catch(error){
+    } catch (error) {
         dataToReturn.description = error;
         return dataToReturn;
     }
@@ -141,37 +217,37 @@ async function getHashedPassword(password){
 
 // Function to get all image by name ( wait two one after every request to prevent exceed limit or added load to website)
 
-async function formatJSON (data){
+async function formatJSON(data) {
     let formattedDogList = [];
-    let shadowData = {...data};
-    for(key of Object.keys(shadowData)){
+    let shadowData = { ...data };
+    for (key of Object.keys(shadowData)) {
         let dataToAdd = {};
         dataToAdd.name = key;
         dataToAdd.description = "";
         dataToAdd.sub_breed = [];
         // Check if dog has sub-breed
-        if(shadowData[key].length > 0){
-            for(const each of shadowData[key]){
+        if (shadowData[key].length > 0) {
+            for (const each of shadowData[key]) {
                 let subData = {};
                 subData.name = each;
                 subData.description = "";
-                try{
-                    const {data} = await axios.get(`https://dog.ceo/api/breed/${key}/${each}/images/random`);
-                    const {message} = data;
+                try {
+                    const { data } = await axios.get(`https://dog.ceo/api/breed/${key}/${each}/images/random`);
+                    const { message } = data;
                     subData.imagePath = message;
                     dataToAdd.sub_breed.push(subData);
-                    await new Promise(resolve => setTimeout(resolve,500));
-                }catch(error){
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
                 }
             }
         };
-        try{
-            const {data} = await axios.get(`https://dog.ceo/api/breed/${key}/images/random`);
-            const {message} = data;
+        try {
+            const { data } = await axios.get(`https://dog.ceo/api/breed/${key}/images/random`);
+            const { message } = data;
             dataToAdd.imagePath = message
             formattedDogList.push(dataToAdd);
-            await new Promise(resolve => setTimeout(resolve,500));
-        }catch(error){
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
         }
     }
     return formattedDogList;
@@ -181,17 +257,17 @@ async function formatJSON (data){
 
 
 //TO TEST
-async function updateFetchedData(dogName, userName, imagePath){
+async function updateFetchedData(dogName, userName, imagePath) {
     let dataToReturn = {
         success: false,
         subscription: ""
     }
     const formattedDogName = dogName.split("-");
-    if(formattedDogName.length > 1){
+    if (formattedDogName.length > 1) {
         const fName = formattedDogName[0];
         const bName = formattedDogName[1];
 
-        try{
+        try {
             const userDogs = getDogsByUserName(userName);
             const indexOfDog = userDogs.findIndex((dog) => dog.name === fName);
 
@@ -200,7 +276,7 @@ async function updateFetchedData(dogName, userName, imagePath){
             const sub_breedIndex = mainBreed.sub_breed.findIndex((dog) => dog.name === bName);
             const dogToUpdate = mainBreed.sub_breed[sub_breedIndex];
 
-            const shadow = {...dogToUpdate, imagePath: imagePath}
+            const shadow = { ...dogToUpdate, imagePath: imagePath }
             mainBreed.sub_breed[sub_breedIndex] = shadow;
 
             saveJSONFile(userDogs, userName);
@@ -209,41 +285,41 @@ async function updateFetchedData(dogName, userName, imagePath){
             dataToReturn.subscription = "Successfully updated";
             return dataToReturn
 
-        }catch(error){
+        } catch (error) {
             dataToReturn.subscription = "Update failed, Please try agin later"
             return dataToReturn
         }
     }
 
-    try{
+    try {
         const userDogs = getDogsByUserName(userName);
         const indexOfDog = userDogs.findIndex((dog) => dog.name === dogName);
 
         const dogToUpdate = userDogs[indexOfDog];
 
-        const shadow = {...dogToUpdate, imagePath: imagePath}
+        const shadow = { ...dogToUpdate, imagePath: imagePath }
         userDogs[indexOfDog] = shadow;
 
         saveJSONFile(userDogs, userName);
-            dataToReturn.success = true;
-            dataToReturn.subscription = "Successfully updated";
-            return dataToReturn
+        dataToReturn.success = true;
+        dataToReturn.subscription = "Successfully updated";
+        return dataToReturn
 
-        }catch(error){
-            dataToReturn.subscription = "Update failed, Please try agin later"
-            return dataToReturn
+    } catch (error) {
+        dataToReturn.subscription = "Update failed, Please try agin later"
+        return dataToReturn
     }
 }
 
-async function formatDefaultJSON(){
+async function formatDefaultJSON() {
     const data = JSON.parse(fs.readFileSync(path.join(__dirname, "dogs.json")));
     return await formatJSON(data);
 
 }
 
-function saveJSONFile(convertedData, userName){
-    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(convertedData, null, 2), function(err){
-        if(err){
+function saveJSONFile(convertedData, userName) {
+    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(convertedData, null, 2), function (err) {
+        if (err) {
             dataToReturn.description = err
             return dataToReturn;
         }
@@ -252,8 +328,8 @@ function saveJSONFile(convertedData, userName){
 }
 
 // Used for saving image
-function getUserDirPath(userName, filename=""){
-    if(filename.length > 1){
+function getUserDirPath(userName, filename = "") {
+    if (filename.length > 1) {
         const extension = filename.split('.')[1];
         return path.join(__dirname, "data", userName, `icon.${extension}`);
 
@@ -272,4 +348,5 @@ module.exports = {
     readUserAuth,
     formatJSON,
     createUser,
+    removeDog,
 }
