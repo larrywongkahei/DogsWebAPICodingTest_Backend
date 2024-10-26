@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt_validator = require('../middlewares/jwt/jwt_validate');
-const { formatJSON, saveJSONFile, getUserDirPath, getDogsByUserName, updateFetchedData, findDogIndex, findSubDogIndex, removeDog } = require('../database_controller');
+const { formatJSON, saveJSONFile, getUserDirPath, getDogsByUserName, updateFetchedData, findDogIndex, findSubDogIndex, removeDog, checkIfExist } = require('../database_controller');
 const path = require('path');
 const axios = require("axios");
 const jwt_validate = require('../middlewares/jwt/jwt_validate');
@@ -31,12 +31,17 @@ router.get('/random/:main/:sub?', jwt_validator, async (req, res) => {
     }
 })
 
-// Need to check if exist in the json file.
 router.get('/verify/:main/:sub?', jwt_validator, async (req, res) => {
 
     let url = "";
+    const sub = req.params.sub || "";
 
-    if (req.params.sub) {
+    const exist = checkIfExist(req.userName, req.params.main, sub)
+    if(exist){
+        return res.json({success: false, description: "Dog already exist!"});
+    } 
+
+    if (sub) {
         url = `https://dog.ceo/api/breed/${req.params.main.toLowerCase()}/${req.params.sub.toLowerCase()}/images/random`
     } else {
         url = `https://dog.ceo/api/breed/${req.params.main.toLowerCase()}/images/random`

@@ -54,6 +54,19 @@ function removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex) {
 
 }
 
+function checkIfExist(userName, main, sub=""){
+    const dogs = getDogsByUserName(userName);
+
+    if(sub.length === 0){
+        console.log(sub)
+        return dogs.findIndex((dog) => dog.name === main) !== -1;
+    }
+
+    const mainIndex = dogs.findIndex((dog) => dog.name === main);
+
+    return dogs[mainIndex]['sub_breed'].findIndex((dog) => dog.name === sub) !== -1;
+}
+
 function removeDog(userName, main, sub = "") {
 
     let dataToReturn = {
@@ -346,6 +359,7 @@ module.exports = {
     getUserDirPath,
     saveJSONFile,
     readUserAuth,
+    checkIfExist,
     formatJSON,
     createUser,
     removeDog,
