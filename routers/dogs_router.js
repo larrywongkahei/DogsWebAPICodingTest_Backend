@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt_validator = require('../middlewares/jwt/jwt_validate');
-const { formatJSON, saveJSONFile, getUserDirPath, getDogsByUserName, updateFetchedData, findDogIndex, findSubDogIndex, removeDog, checkIfExist, createDog, updateDog } = require('../database_controller');
+const { formatJSON, saveJSONFile, getUserDirPath, getDogsByUserName, updateFetchedData, findDogIndex, findSubDogIndex, removeDog, checkIfExist, createDog, updateDog, getMainBreedData } = require('../database_controller');
 const path = require('path');
 const axios = require("axios");
 const jwt_validate = require('../middlewares/jwt/jwt_validate');
@@ -33,7 +33,6 @@ router.get('/random/:main/:sub?', jwt_validator, async (req, res) => {
 
 router.patch("/update", jwt_validate, async(req, res) => {
     const { name, main_breed="", sub_breed=null, imagePath, description } = req.body;
-    console.log(req.body);
 
     const { success, description:result_description } = updateDog(req.userName, name, main_breed, sub_breed, imagePath, description);
 
@@ -51,6 +50,22 @@ router.post("/create", jwt_validate, async(req, res) => {
     let status = success ? 200 : 400;
 
     return res.status(status).json({success, description: result_description});
+})
+
+router.get("/main_breed/:main", jwt_validate, async(req, res) => {
+    const { success, description, data, status } = getMainBreedData(req.userName, req.params.main);
+
+    let dataToReturn = {
+        success,
+        description,
+        status
+    }
+    
+    if(success){
+        dataToReturn.data = data;
+    }
+
+    return res.status(status).json(dataToReturn);
 })
 
 router.get('/verify/:main/:sub?', jwt_validator, async (req, res) => {
@@ -78,10 +93,11 @@ router.get('/verify/:main/:sub?', jwt_validator, async (req, res) => {
     }
 })
 
-router.patch('/image/:name', jwt_validator, async (req, res) => {
-    const dogName = req.params.name;
+router.patch('/image/:main/:sub?', jwt_validator, async (req, res) => {
+    const { sub="", main } = req.params;
     const { imagePath } = req.body;
-    const data = await updateFetchedData(dogName, req.userName, imagePath);
+
+    const data = updateFetchedData(req.userName, main, sub, imagePath);
     res.json({ success: true, description: "Updated" })
 })
 
@@ -132,7 +148,6 @@ router.post('/fileUpload', jwt_validator, async (req, res) => {
 router.delete('/delete/:main/:sub?', jwt_validate, async (req, res) => {
 
     if(req.params.sub){
-        console.log('called sub')
         const result = removeDog(req.userName, req.params.main, req.params.sub);
         return res.status(200).json(result);
     }

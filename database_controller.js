@@ -30,12 +30,6 @@ function removeMainBreedDogFromFile(userName, dogs, index) {
     const shadowList = [...dogs];
     shadowList.splice(index, 1);
     saveJSONFile(shadowList, userName);
-    // fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
-    //     if (err) {
-    //         dataToReturn.description = err
-    //         return dataToReturn;
-    //     }
-    // });
     return shadowList;
 }
 
@@ -43,12 +37,6 @@ function removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex) {
     const shadowList = [...dogs];
     shadowList[mainIndex]['sub_breed'].splice(subIndex, 1);
     saveJSONFile(shadowList, userName);
-    // fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
-    //     if (err) {
-    //         dataToReturn.description = err
-    //         return dataToReturn;
-    //     }
-    // });
     return shadowList;
 
 }
@@ -81,7 +69,7 @@ function updateDog(userName, name, main_breed, sub_breed, imagePath, description
 
     //Cant change image of sub breed.
     // Meaning that it is a main Breed.
-    if(sub_breed !== null) {
+    if (sub_breed !== null) {
 
         shadowDogs[mainIndex] = {
             name,
@@ -89,7 +77,7 @@ function updateDog(userName, name, main_breed, sub_breed, imagePath, description
             sub_breed,
             imagePath
         }
-    }else{
+    } else {
         const subIndex = shadowDogs[mainIndex]["sub_breed"].findIndex((sub) => sub.name === name);
 
         shadowDogs[mainIndex]["sub_breed"][subIndex] = {
@@ -101,14 +89,6 @@ function updateDog(userName, name, main_breed, sub_breed, imagePath, description
 
 
     saveJSONFile(shadowDogs, userName);
-
-//     fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowDogs, null, 2), function (err) {
-//         if (err) {
-//             dataToReturn.description = err
-//             return dataToReturn;
-//         }
-//     }
-// )
     dataToReturn.success = true;
     dataToReturn.description = "Successfully updated!";
     return dataToReturn;
@@ -121,34 +101,29 @@ function createDog(userName, mainBreed, subBreed, imagePath, description) {
         description: "",
     }
     const dogs = getDogsByUserName(userName);
-    
+
     let shadowDogs = [...dogs];
 
     // Meaning that it is a main Breed.
     if (subBreed.length === 0) {
         shadowDogs.push(
-        {
-            name: mainBreed,
-            description: description,
-            sub_breed: [],
-            imagePath: imagePath
-        })
-    }else{
+            {
+                name: mainBreed,
+                description: description,
+                sub_breed: [],
+                imagePath: imagePath
+            })
+    } else {
         const mainIndex = shadowDogs.findIndex((dog) => dog.name === mainBreed);
         shadowDogs[mainIndex]["sub_breed"].push({
-            name:subBreed,
+            name: subBreed,
             description,
             imagePath
         })
     }
 
-    fmas.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowDogs, null, 2), function (err) {
-        if (err) {
-            dataToReturn.description = err
-            return dataToReturn;
-        }
-    }
-)
+    saveJSONFile(shadowDogs, userName);
+
     dataToReturn.success = true;
     dataToReturn.description = "Successfully added!";
     return dataToReturn;
@@ -234,13 +209,12 @@ async function createUser(userAuth) {
     }
 
     // Write user auth data in json file
-    saveJSONFile(convertedData, userAuth.username);
-    // fs.writeFileSync(path.join(__dirname, "data", userAuth.username, "userAuth.json"), convertedData, function (err) {
-    //     if (err) {
-    //         dataToReturn.description = err
-    //         return dataToReturn;
-    //     }
-    // });
+    fs.writeFileSync(path.join(__dirname, "data", userAuth.username, "userAuth.json"), convertedData, function (err) {
+        if (err) {
+            dataToReturn.description = err
+            return dataToReturn;
+        }
+    });
 
     // Write default dogs data in dogs.json
     const dogs = JSON.parse(fs.readFileSync(path.join(__dirname, "default_dogs.json")));
@@ -352,110 +326,167 @@ async function formatJSON(data) {
     return formattedDogList;
 };
 
-
-
-
-//TO TEST
-async function updateFetchedData(dogName, userName, imagePath) {
+function getMainBreedData(userName, main_breed_name){
     let dataToReturn = {
         success: false,
-        subscription: "",
-        data: []
-
+        description: "",
+        data: [],
+        status:400,
     }
-    const formattedDogName = dogName.split("-");
-    if (formattedDogName.length > 1) {
-        const fName = formattedDogName[0];
-        const bName = formattedDogName[1];
 
-        try {
-            const userDogs = getDogsByUserName(userName);
-            const shadowDogs = [...userDogs];
-            if(dogName.split("-").length > 1){
+    const dogs = getDogsByUserName(userName);
+    const index = dogs.findIndex((dog) => dog.name === main_breed_name);
+    if(index === -1){
+        description = "Dog not exist";
+        return dataToReturn;
+    };
 
-            }
-            const indexOfDog = shadowDogs.findIndex((dog) => dog.name === fName);
+    dataToReturn.success = true;
+    dataToReturn.description = "Data Fetched";
+    dataToReturn.data = dogs[index];
+    dataToReturn.status = 200;
+    return dataToReturn;
 
-            const mainBreed = shadowDogs[indexOfDog];
+}
 
-            const sub_breedIndex = mainBreed.sub_breed.findIndex((dog) => dog.name === bName);
-            const dogToUpdate = mainBreed.sub_breed[sub_breedIndex];
 
-            const shadow = { ...dogToUpdate, imagePath: imagePath }
-            mainBreed.sub_breed[sub_breedIndex] = shadow;
-
-            saveJSONFile(shadowDogs, userName);
-            //Add status
-            dataToReturn.success = true;
-            dataToReturn.subscription = "Successfully updated";
-            dataToReturn.data = shadowDogs;
-            return dataToReturn
-
-        } catch (error) {
-            dataToReturn.subscription = "Update failed, Please try agin later"
-            return dataToReturn
-        }
+function updateFetchedData(userName, main, sub, imagePath) {
+    let dataToReturn = {
+        success: false,
+        discription: "",
+        data: []
     }
 
     try {
-        const userDogs = getDogsByUserName(userName);
-        const indexOfDog = userDogs.findIndex((dog) => dog.name === dogName);
+        const dogs = getDogsByUserName(userName);
 
-        const dogToUpdate = userDogs[indexOfDog];
+        const shadowDogs = [...dogs];
 
-        const shadow = { ...dogToUpdate, imagePath: imagePath }
-        userDogs[indexOfDog] = shadow;
+        const mainIndex = shadowDogs.findIndex((dog) => dog.name === main);
 
-        saveJSONFile(userDogs, userName);
-        dataToReturn.success = true;
-        dataToReturn.subscription = "Successfully updated";
-        return dataToReturn
-
-    } catch (error) {
-        dataToReturn.subscription = "Update failed, Please try agin later"
-        return dataToReturn
-    }
-}
-
-async function formatDefaultJSON() {
-    const data = JSON.parse(fs.readFileSync(path.join(__dirname, "dogs.json")));
-    return await formatJSON(data);
-
-}
-
-function saveJSONFile(convertedData, userName) {
-    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(convertedData, null, 2), function (err) {
-        if (err) {
-            dataToReturn.description = err
+        if (mainIndex === -1) {
+            dataToReturn.discription = "Dog not exist";
             return dataToReturn;
         }
-    });
 
+        if (sub.length === 0) {
+            shadowDogs[mainIndex]['imagePath'] = imagePath;
+        } else {
+            const subIndex = shadowDogs[mainIndex]["sub_breed"].findIndex((dog) => dog.name === sub);
+
+            if (subIndex === -1) {
+                dataToReturn.discription = "Dog not exist";
+                return dataToReturn;
+            }
+
+            shadowDogs[mainIndex]['sub_breed'][subIndex]['imagePath'] = imagePath;
+        }
+
+        saveJSONFile(shadowDogs, userName);
+        dataToReturn.success = true;
+        dataToReturn.discription = "Updated";
+        dataToReturn.data = shadowDogs;
+        return dataToReturn;
+    } catch (error) {
+        dataToReturn.discription = error;
+        return dataToReturn;
+    }
 }
 
-// Used for saving image
-function getUserDirPath(userName, filename = "") {
-    if (filename.length > 1) {
-        const extension = filename.split('.')[1];
-        return path.join(__dirname, "data", userName, `icon.${extension}`);
+
+    //     if (formattedDogName.length > 1) {
+    //         const fName = formattedDogName[0];
+    //         const bName = formattedDogName[1];
+
+    //         try {
+    //             const userDogs = getDogsByUserName(userName);
+    //             const shadowDogs = [...userDogs];
+    //             if(dogName.split("-").length > 1){
+
+    //             }
+    //             const indexOfDog = shadowDogs.findIndex((dog) => dog.name === fName);
+
+    //             const mainBreed = shadowDogs[indexOfDog];
+
+    //             const sub_breedIndex = mainBreed.sub_breed.findIndex((dog) => dog.name === bName);
+    //             const dogToUpdate = mainBreed.sub_breed[sub_breedIndex];
+
+    //             const shadow = { ...dogToUpdate, imagePath: imagePath }
+    //             mainBreed.sub_breed[sub_breedIndex] = shadow;
+
+    //             saveJSONFile(shadowDogs, userName);
+    //             //Add status
+    //             dataToReturn.success = true;
+    //             dataToReturn.subscription = "Successfully updated";
+    //             dataToReturn.data = shadowDogs;
+    //             return dataToReturn
+
+    //         } catch (error) {
+    //             dataToReturn.subscription = "Update failed, Please try agin later"
+    //             return dataToReturn
+    //         }
+    //     }
+
+    //     try {
+    //         const userDogs = getDogsByUserName(userName);
+    //         const indexOfDog = userDogs.findIndex((dog) => dog.name === dogName);
+
+    //         const dogToUpdate = userDogs[indexOfDog];
+
+    //         const shadow = { ...dogToUpdate, imagePath: imagePath }
+    //         userDogs[indexOfDog] = shadow;
+
+    //         saveJSONFile(userDogs, userName);
+    //         dataToReturn.success = true;
+    //         dataToReturn.subscription = "Successfully updated";
+    //         return dataToReturn
+
+    //     } catch (error) {
+    //         dataToReturn.subscription = "Update failed, Please try agin later"
+    //         return dataToReturn
+    //     }
+    // }
+
+    async function formatDefaultJSON() {
+        const data = JSON.parse(fs.readFileSync(path.join(__dirname, "dogs.json")));
+        return await formatJSON(data);
 
     }
-    return path.join(__dirname, "data", userName);
-}
 
-module.exports = {
-    checkIfUserFolderExist,
-    formatDefaultJSON,
-    getDogsByUserName,
-    updateFetchedData,
-    validatePassword,
-    getUserDirPath,
-    saveJSONFile,
-    readUserAuth,
-    checkIfExist,
-    formatJSON,
-    createUser,
-    updateDog,
-    createDog,
-    removeDog,
-}
+    function saveJSONFile(convertedData, userName) {
+        return fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(convertedData, null, 2), function (err) {
+            if (err) {
+                dataToReturn.description = err
+                return dataToReturn;
+            }
+        });
+
+    }
+
+    // Used for saving image
+    function getUserDirPath(userName, filename = "") {
+        if (filename.length > 1) {
+            const extension = filename.split('.')[1];
+            return path.join(__dirname, "data", userName, `icon.${extension}`);
+
+        }
+        return path.join(__dirname, "data", userName);
+    }
+
+    module.exports = {
+        checkIfUserFolderExist,
+        formatDefaultJSON,
+        getDogsByUserName,
+        updateFetchedData,
+        validatePassword,
+        getMainBreedData, 
+        getUserDirPath,
+        saveJSONFile,
+        readUserAuth,
+        checkIfExist,
+        formatJSON,
+        createUser,
+        updateDog,
+        createDog,
+        removeDog,
+    }
