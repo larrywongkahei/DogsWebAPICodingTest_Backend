@@ -12,7 +12,6 @@ function checkIfUserFolderExist(name) {
 async function getDogsByUserName(name) {
     const data = await fs.promises.readFile(path.join(__dirname, "data", name, "dogs.json"));
     return JSON.parse(data).sort((a,b) => a.name.localeCompare(b.name));
-    // return JSON.parse(await fs.readFile(path.join(__dirname, "data", name, "dogs.json"))).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function readUserAuth(name) {
@@ -395,59 +394,6 @@ async function updateFetchedData(userName, main, sub, imagePath) {
     }
 }
 
-
-    //     if (formattedDogName.length > 1) {
-    //         const fName = formattedDogName[0];
-    //         const bName = formattedDogName[1];
-
-    //         try {
-    //             const userDogs = getDogsByUserName(userName);
-    //             const shadowDogs = [...userDogs];
-    //             if(dogName.split("-").length > 1){
-
-    //             }
-    //             const indexOfDog = shadowDogs.findIndex((dog) => dog.name === fName);
-
-    //             const mainBreed = shadowDogs[indexOfDog];
-
-    //             const sub_breedIndex = mainBreed.sub_breed.findIndex((dog) => dog.name === bName);
-    //             const dogToUpdate = mainBreed.sub_breed[sub_breedIndex];
-
-    //             const shadow = { ...dogToUpdate, imagePath: imagePath }
-    //             mainBreed.sub_breed[sub_breedIndex] = shadow;
-
-    //             saveJSONFile(shadowDogs, userName);
-    //             //Add status
-    //             dataToReturn.success = true;
-    //             dataToReturn.subscription = "Successfully updated";
-    //             dataToReturn.data = shadowDogs;
-    //             return dataToReturn
-
-    //         } catch (error) {
-    //             dataToReturn.subscription = "Update failed, Please try agin later"
-    //             return dataToReturn
-    //         }
-    //     }
-
-    //     try {
-    //         const userDogs = getDogsByUserName(userName);
-    //         const indexOfDog = userDogs.findIndex((dog) => dog.name === dogName);
-
-    //         const dogToUpdate = userDogs[indexOfDog];
-
-    //         const shadow = { ...dogToUpdate, imagePath: imagePath }
-    //         userDogs[indexOfDog] = shadow;
-
-    //         saveJSONFile(userDogs, userName);
-    //         dataToReturn.success = true;
-    //         dataToReturn.subscription = "Successfully updated";
-    //         return dataToReturn
-
-    //     } catch (error) {
-    //         dataToReturn.subscription = "Update failed, Please try agin later"
-    //         return dataToReturn
-    //     }
-    // }
 
     async function formatDefaultJSON() {
         const data = JSON.parse(fs.readFileSync(path.join(__dirname, "dogs.json")));
