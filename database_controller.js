@@ -10,7 +10,7 @@ function checkIfUserFolderExist(name) {
 }
 
 function getDogsByUserName(name) {
-    return JSON.parse(fs.readFileSync(path.join(__dirname, "data", name, "dogs.json")));
+    return JSON.parse(fs.readFileSync(path.join(__dirname, "data", name, "dogs.json"))).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function readUserAuth(name) {
@@ -29,42 +29,130 @@ function readUserAuth(name) {
 function removeMainBreedDogFromFile(userName, dogs, index) {
     const shadowList = [...dogs];
     shadowList.splice(index, 1);
-    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
-        if (err) {
-            dataToReturn.description = err
-            return dataToReturn;
-        }
-    });
+    saveJSONFile(shadowList, userName);
+    // fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
+    //     if (err) {
+    //         dataToReturn.description = err
+    //         return dataToReturn;
+    //     }
+    // });
     return shadowList;
 }
 
 function removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex) {
     const shadowList = [...dogs];
-    console.log(shadowList)
     shadowList[mainIndex]['sub_breed'].splice(subIndex, 1);
-    console.log('writing')
-    fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
-        if (err) {
-            dataToReturn.description = err
-            return dataToReturn;
-        }
-    });
-    console.log("wrote")
+    saveJSONFile(shadowList, userName);
+    // fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowList, null, 2), function (err) {
+    //     if (err) {
+    //         dataToReturn.description = err
+    //         return dataToReturn;
+    //     }
+    // });
     return shadowList;
 
 }
 
-function checkIfExist(userName, main, sub=""){
+function checkIfExist(userName, main, sub = "") {
     const dogs = getDogsByUserName(userName);
 
-    if(sub.length === 0){
-        console.log(sub)
+    if (sub.length === 0) {
         return dogs.findIndex((dog) => dog.name === main) !== -1;
     }
 
     const mainIndex = dogs.findIndex((dog) => dog.name === main);
 
     return dogs[mainIndex]['sub_breed'].findIndex((dog) => dog.name === sub) !== -1;
+}
+
+function updateDog(userName, name, main_breed, sub_breed, imagePath, description) {
+    const dogs = getDogsByUserName(userName);
+
+    let dataToReturn = {
+        success: false,
+        description: "",
+    }
+    let isMainBreed = main_breed.length === 0;
+    let targetName = isMainBreed ? name : main_breed;
+
+    let shadowDogs = [...dogs];
+
+    const mainIndex = shadowDogs.findIndex((dog) => dog.name === targetName);
+
+    //Cant change image of sub breed.
+    // Meaning that it is a main Breed.
+    if(sub_breed !== null) {
+
+        shadowDogs[mainIndex] = {
+            name,
+            description,
+            sub_breed,
+            imagePath
+        }
+    }else{
+        const subIndex = shadowDogs[mainIndex]["sub_breed"].findIndex((sub) => sub.name === name);
+
+        shadowDogs[mainIndex]["sub_breed"][subIndex] = {
+            name,
+            description,
+            imagePath
+        }
+    }
+
+
+    saveJSONFile(shadowDogs, userName);
+
+//     fs.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowDogs, null, 2), function (err) {
+//         if (err) {
+//             dataToReturn.description = err
+//             return dataToReturn;
+//         }
+//     }
+// )
+    dataToReturn.success = true;
+    dataToReturn.description = "Successfully updated!";
+    return dataToReturn;
+
+}
+
+function createDog(userName, mainBreed, subBreed, imagePath, description) {
+    let dataToReturn = {
+        success: false,
+        description: "",
+    }
+    const dogs = getDogsByUserName(userName);
+    
+    let shadowDogs = [...dogs];
+
+    // Meaning that it is a main Breed.
+    if (subBreed.length === 0) {
+        shadowDogs.push(
+        {
+            name: mainBreed,
+            description: description,
+            sub_breed: [],
+            imagePath: imagePath
+        })
+    }else{
+        const mainIndex = shadowDogs.findIndex((dog) => dog.name === mainBreed);
+        shadowDogs[mainIndex]["sub_breed"].push({
+            name:subBreed,
+            description,
+            imagePath
+        })
+    }
+
+    fmas.writeFileSync(path.join(__dirname, "data", userName, "dogs.json"), JSON.stringify(shadowDogs, null, 2), function (err) {
+        if (err) {
+            dataToReturn.description = err
+            return dataToReturn;
+        }
+    }
+)
+    dataToReturn.success = true;
+    dataToReturn.description = "Successfully added!";
+    return dataToReturn;
+
 }
 
 function removeDog(userName, main, sub = "") {
@@ -77,7 +165,6 @@ function removeDog(userName, main, sub = "") {
 
     const dogs = getDogsByUserName(userName);
     const mainIndex = dogs.findIndex((dog) => dog.name === main);
-    console.log(mainIndex)
 
     if (mainIndex === -1) {
         dataToReturn.description = "Dog not exist. Please report this problem."
@@ -97,7 +184,6 @@ function removeDog(userName, main, sub = "") {
     }
 
     const subIndex = dogs[mainIndex]["sub_breed"].findIndex((dog) => dog.name === sub);
-    console.log(subIndex)
 
     if (subIndex === -1) {
         dataToReturn.description = "Dog not exist. Please report this problem."
@@ -108,7 +194,6 @@ function removeDog(userName, main, sub = "") {
         dataToReturn.data = removeSubBreedDogFromFile(userName, dogs, mainIndex, subIndex);
         dataToReturn.success = true;
         dataToReturn.description = "Successfully deleted";
-        console.log('success')
         return dataToReturn;
     } catch (error) {
         dataToReturn.description = "Dog can not be removed. Please report this problem."
@@ -149,12 +234,13 @@ async function createUser(userAuth) {
     }
 
     // Write user auth data in json file
-    fs.writeFileSync(path.join(__dirname, "data", userAuth.username, "userAuth.json"), convertedData, function (err) {
-        if (err) {
-            dataToReturn.description = err
-            return dataToReturn;
-        }
-    });
+    saveJSONFile(convertedData, userAuth.username);
+    // fs.writeFileSync(path.join(__dirname, "data", userAuth.username, "userAuth.json"), convertedData, function (err) {
+    //     if (err) {
+    //         dataToReturn.description = err
+    //         return dataToReturn;
+    //     }
+    // });
 
     // Write default dogs data in dogs.json
     const dogs = JSON.parse(fs.readFileSync(path.join(__dirname, "default_dogs.json")));
@@ -273,7 +359,9 @@ async function formatJSON(data) {
 async function updateFetchedData(dogName, userName, imagePath) {
     let dataToReturn = {
         success: false,
-        subscription: ""
+        subscription: "",
+        data: []
+
     }
     const formattedDogName = dogName.split("-");
     if (formattedDogName.length > 1) {
@@ -282,9 +370,13 @@ async function updateFetchedData(dogName, userName, imagePath) {
 
         try {
             const userDogs = getDogsByUserName(userName);
-            const indexOfDog = userDogs.findIndex((dog) => dog.name === fName);
+            const shadowDogs = [...userDogs];
+            if(dogName.split("-").length > 1){
 
-            const mainBreed = userDogs[indexOfDog];
+            }
+            const indexOfDog = shadowDogs.findIndex((dog) => dog.name === fName);
+
+            const mainBreed = shadowDogs[indexOfDog];
 
             const sub_breedIndex = mainBreed.sub_breed.findIndex((dog) => dog.name === bName);
             const dogToUpdate = mainBreed.sub_breed[sub_breedIndex];
@@ -292,10 +384,11 @@ async function updateFetchedData(dogName, userName, imagePath) {
             const shadow = { ...dogToUpdate, imagePath: imagePath }
             mainBreed.sub_breed[sub_breedIndex] = shadow;
 
-            saveJSONFile(userDogs, userName);
+            saveJSONFile(shadowDogs, userName);
             //Add status
             dataToReturn.success = true;
             dataToReturn.subscription = "Successfully updated";
+            dataToReturn.data = shadowDogs;
             return dataToReturn
 
         } catch (error) {
@@ -362,5 +455,7 @@ module.exports = {
     checkIfExist,
     formatJSON,
     createUser,
+    updateDog,
+    createDog,
     removeDog,
 }

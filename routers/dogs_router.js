@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt_validator = require('../middlewares/jwt/jwt_validate');
-const { formatJSON, saveJSONFile, getUserDirPath, getDogsByUserName, updateFetchedData, findDogIndex, findSubDogIndex, removeDog, checkIfExist } = require('../database_controller');
+const { formatJSON, saveJSONFile, getUserDirPath, getDogsByUserName, updateFetchedData, findDogIndex, findSubDogIndex, removeDog, checkIfExist, createDog, updateDog } = require('../database_controller');
 const path = require('path');
 const axios = require("axios");
 const jwt_validate = require('../middlewares/jwt/jwt_validate');
@@ -24,11 +24,33 @@ router.get('/random/:main/:sub?', jwt_validator, async (req, res) => {
 
     try {
         const { data } = await axios.get(url);
-        return res.json({ success: true, description: "Random image fetched!", data: data.message });
+        return res.status(200).json({ success: true, description: "Random image fetched!", data: data.message });
 
     } catch (error) {
-        return res.json({ success: false, description: "Random image fetch failed, Please try again later" });
+        return res.status(400).json({ success: false, description: "Random image fetch failed, Please try again later" });
     }
+})
+
+router.patch("/update", jwt_validate, async(req, res) => {
+    const { name, main_breed="", sub_breed=null, imagePath, description } = req.body;
+    console.log(req.body);
+
+    const { success, description:result_description } = updateDog(req.userName, name, main_breed, sub_breed, imagePath, description);
+
+    let status = success ? 200 : 400;
+
+    return res.status(status).json({success, description: result_description});
+    
+})
+
+router.post("/create", jwt_validate, async(req, res) => {
+    const { mainBreed, subBreed="", imagePath, description } = req.body;
+
+    const { success, description:result_description } = createDog(req.userName, mainBreed, subBreed, imagePath, description);
+
+    let status = success ? 200 : 400;
+
+    return res.status(status).json({success, description: result_description});
 })
 
 router.get('/verify/:main/:sub?', jwt_validator, async (req, res) => {
