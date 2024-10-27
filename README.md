@@ -5,6 +5,10 @@
 - Login logics
 - ... Yet to decide
 
+## Ways to start using this project
+1. Docker
+2. Start up locally
+3. Visit my oracle instance that running this project. (http://130.162.172.61/)[press me]
 
 ## Something funny
 
