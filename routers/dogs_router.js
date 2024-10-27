@@ -8,8 +8,12 @@ const jwt_validate = require('../middlewares/jwt/jwt_validate');
 const router = express.Router();
 
 router.get('/', jwt_validator, async (req, res) => {
+	try{
     const data = await getDogsByUserName(req.userName);
-    res.status(200).json({ success: true, description: "got data", data: data });
+    return res.status(200).json({ success: true, description: "got data", data: data })
+	}catch(error){
+		return res.status(401).json({success: false, description: "Please login again"});
+	}
 })
 
 router.get('/random/:main/:sub?', jwt_validator, async (req, res) => {
