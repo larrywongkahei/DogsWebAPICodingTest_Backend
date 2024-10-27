@@ -1,5 +1,5 @@
 # Dogs web api coding test (Backend)
-
+ I have included .env file as well, for easier to start.
 ## MVP
 - Basic GET, POST, PUT, DELETE endpoints
 - Login logics
