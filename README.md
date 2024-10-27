@@ -8,7 +8,7 @@
 ## Ways to start using this project
 1. Docker
 2. Start up locally
-3. Visit my oracle instance that running this project. [http://130.162.172.61/](press me)
+3. Visit my oracle instance that running this project. [Press me](http://130.162.172.61/)
 
 ## Something funny
 
