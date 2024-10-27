@@ -17,7 +17,7 @@ const app = express();
 app.use(
     cors(
         {
-            origin: "http://localhost",
+            origin: "http://130.162.172.61",
             credentials: true,
         }
 ));
@@ -39,11 +39,6 @@ const port = process.env.PORTS || 3001;
 app.get("/", (req, res) => {
     formatDefaultJSON();
     res.send("hi");
-    // fs.writeFileSync(path.join(__dirname, 'data', 'user.txt'), "hello");
-    // res.json(
-    //     {data:"test"}
-    // )
-
 })
 
 app.listen(port, () => {

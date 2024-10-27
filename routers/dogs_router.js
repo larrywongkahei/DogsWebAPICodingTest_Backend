@@ -73,7 +73,7 @@ router.get('/verify/:main/:sub?', jwt_validator, async (req, res) => {
     let url = "";
     const sub = req.params.sub || "";
 
-    const exist = checkIfExist(req.userName, req.params.main, sub)
+    const exist = await checkIfExist(req.userName, req.params.main, sub)
     if(exist){
         return res.json({success: false, description: "Dog already exist!"});
     } 
